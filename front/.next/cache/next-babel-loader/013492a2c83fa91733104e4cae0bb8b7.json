@@ -1,0 +1,1 @@
+{"ast":null,"code":"import React from \"react\";\nimport { jsx as _jsx } from \"react/jsx-runtime\";\n\nfunction Profile() {\n  return /*#__PURE__*/_jsx(\"div\", {\n    children: \"Profile\"\n  });\n}\n\nexport default Profile;","map":null,"metadata":{},"sourceType":"module"}

@@ -1,0 +1,1 @@
+{"ast":null,"code":"import React from \"react\";\nimport { jsx as _jsx } from \"react/jsx-runtime\";\n\nfunction Home() {\n  return /*#__PURE__*/_jsx(\"div\", {\n    children: \"Hello, Next!\"\n  });\n}\n\nexport default Home;","map":null,"metadata":{},"sourceType":"module"}
