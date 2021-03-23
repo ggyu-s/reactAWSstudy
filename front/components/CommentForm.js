@@ -20,7 +20,7 @@ function CommentForm({ post }) {
           rows={4}
         />
         <Button
-          style={{ position: "absolute", right: 0, bottom: -40, zIndex: 9999 }}
+          style={{ position: "absolute", right: 0, bottom: -40, zIndex: 9997 }}
           htmlType="submit"
           type="primary"
         >
