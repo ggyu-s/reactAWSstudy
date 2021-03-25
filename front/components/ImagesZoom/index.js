@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import Slick from "react-slick";
-import styled, { createGlobalStyle } from "styled-components";
-import { CloseOutlined } from "@ant-design/icons";
 import {
   CloseBtn,
   Global,

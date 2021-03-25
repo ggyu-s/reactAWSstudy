@@ -1,11 +1,11 @@
 import { Button, Form, Input } from "antd";
 import Link from "next/link";
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
-import PropTypes from "prop-types";
+import { useDispatch, useSelector } from "react-redux";
+
 import useInput from "../hooks/useInput";
-import { useDispatch } from "react-redux";
-import { loginAction } from "../reducers/user";
+import { LOG_IN_REQUEST } from "../reducers/user";
 
 const ButtonWrapper = styled.div`
   margin-top: 10px;
@@ -17,24 +17,32 @@ const FormWrapper = styled(Form)`
 
 function LoginForm() {
   const dispatch = useDispatch();
-  const [id, onChangeId] = useInput("");
+  const { logInLoading } = useSelector((state) => state.user);
+  const [email, onChangeEmail] = useInput("");
   const [password, onChangePassword] = useInput("");
 
   const onSubmitForm = useCallback(() => {
-    dispatch(
-      loginAction({
-        id,
+    dispatch({
+      type: LOG_IN_REQUEST,
+      data: {
+        email,
         password,
-      })
-    );
-  }, [id, password]);
+      },
+    });
+  }, [email, password]);
 
   return (
     <FormWrapper onFinish={onSubmitForm}>
       <div>
-        <label htmlFor="user-id">아이디</label>
+        <label htmlFor="user-email">이메일</label>
         <br />
-        <Input name="user-id" value={id} onChange={onChangeId} required />
+        <Input
+          name="user-email"
+          value={email}
+          onChange={onChangeEmail}
+          required
+          type="email"
+        />
       </div>
       <div>
         <label htmlFor="user-passoword">비밀번호</label>
@@ -48,7 +56,7 @@ function LoginForm() {
         />
       </div>
       <ButtonWrapper>
-        <Button type="primary" htmlType="submit" loading={false}>
+        <Button type="primary" htmlType="submit" loading={logInLoading}>
           로그인
         </Button>
         <Link href="/signup">

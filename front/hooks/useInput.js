@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 
 function useInput(initialValue = null) {
   const [value, setValue] = useState(initialValue);
@@ -6,7 +6,7 @@ function useInput(initialValue = null) {
     setValue(e.target.value);
   }, []);
 
-  return [value, handler];
+  return [value, handler, setValue];
 }
 
 export default useInput;
