@@ -10,7 +10,7 @@ function CommentForm({ post }) {
   const { addCommentLoading, addCommentDone } = useSelector(
     (state) => state.post
   );
-  const email = useSelector((state) => state.user.me?.email);
+  const id = useSelector((state) => state.user.me?.id);
   const [commentText, onChangeCommentText, setCommentText] = useInput("");
 
   useEffect(() => {
@@ -20,16 +20,15 @@ function CommentForm({ post }) {
   }, [addCommentDone]);
 
   const onSubmitComment = useCallback(() => {
-    console.log(post.id, commentText);
     dispatch({
       type: ADD_COMMENT_REQUEST,
       data: {
         content: commentText,
         postId: post.id,
-        userId: email,
+        userId: id,
       },
     });
-  }, [commentText, email]);
+  }, [commentText, id]);
 
   return (
     <Form onFinish={onSubmitComment}>
