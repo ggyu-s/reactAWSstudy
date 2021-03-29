@@ -1,6 +1,9 @@
 import produce from "immer";
 
 export const initialState = {
+  logdUserLoading: false,
+  logdUserDone: false,
+  logdUserError: null,
   logInLoading: false,
   logInDone: false,
   logInError: null,
@@ -23,6 +26,10 @@ export const initialState = {
   signUpdate: {},
   loginData: {},
 };
+
+export const LOAD_USER_REQUEST = "LOAD_USER_REQUEST";
+export const LOAD_USER_SUCCESS = "LOAD_USER_SUCCESS";
+export const LOAD_USER_FAILURE = "LOAD_USER_FAILURE";
 
 export const LOG_IN_REQUEST = "LOG_IN_REQUEST";
 export const LOG_IN_SUCCESS = "LOG_IN_SUCCESS";
@@ -71,6 +78,20 @@ const dummyUser = (data) => ({
 const reducer = (state = initialState, action) => {
   return produce(state, (draft) => {
     switch (action.type) {
+      case LOAD_USER_REQUEST:
+        draft.loadUserLoading = true;
+        draft.loadUserDone = false;
+        draft.loadUserError = null;
+        break;
+      case LOAD_USER_SUCCESS:
+        draft.loadUserDone = true;
+        draft.loadUserLoading = false;
+        draft.me = action.data;
+        break;
+      case LOAD_USER_FAILURE:
+        draft.loadUserLoading = false;
+        draft.loadUserError = action.error;
+        break;
       case LOG_IN_REQUEST:
         draft.logInLoading = true;
         draft.logInDone = false;
@@ -118,6 +139,7 @@ const reducer = (state = initialState, action) => {
         draft.changeNicknameError = null;
         break;
       case CHANGE_NICKNAME_SUCCESS:
+        draft.me.nickname = action.data.nickname;
         draft.changeNicknameLoading = false;
         draft.changeNicknameDone = true;
         break;

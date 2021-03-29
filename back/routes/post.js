@@ -1,6 +1,7 @@
 const express = require("express");
 
 const { Post, Comment, User, Image } = require("../models");
+const { isLoggedIn } = require("./middlewares");
 
 const router = express.Router();
 router.post("/", async (req, res, next) => {
@@ -17,9 +18,21 @@ router.post("/", async (req, res, next) => {
         },
         {
           model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+          ],
         },
         {
           model: User,
+          attributes: ["id", "nickname"],
+        },
+        {
+          model: User, // 좋아요 누른사람
+          as: "Likers",
+          attributes: ["id"],
         },
       ],
     });
@@ -30,9 +43,9 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-router.post("/:postId/comment", async (req, res, next) => {
+router.post("/:postId/comment", isLoggedIn, async (req, res, next) => {
   try {
-    await Post.findOne({
+    const post = await Post.findOne({
       where: {
         id: req.params.postId,
       },
@@ -42,18 +55,71 @@ router.post("/:postId/comment", async (req, res, next) => {
     }
     const comment = await Comment.create({
       content: req.body.content,
-      PostId: req.params.postId,
+      PostId: parseInt(req.params.postId, 10),
       UserId: req.user.id,
     });
-    res.status(201).json(comment);
+    const fullComment = await Comment.findOne({
+      where: { id: comment.id },
+      include: [
+        {
+          model: User,
+          attributes: ["id", "nickname"],
+        },
+      ],
+    });
+    res.status(201).json(fullComment);
   } catch (error) {
     console.error(error);
     next(error);
   }
 });
 
-router.delete("/post", (req, res) => {
-  res.json({ id: 1 });
+router.delete("/:postId", isLoggedIn, async (req, res) => {
+  try {
+    await Post.destroy({
+      where: { id: req.params.postId, UserId: req.user.id },
+    });
+    res.json({ PostId: parseInt(req.params.postId, 10) });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.patch("/:postId/like", isLoggedIn, async (req, res, next) => {
+  try {
+    const post = await Post.findOne({
+      where: { id: req.params.postId },
+    });
+    if (!post) {
+      return res.status(403).send("게시글이 존재하지 않습니다.");
+    }
+    await post.addLikers(req.user.id);
+    res.json({
+      PostId: post.id,
+      UserId: req.user.id,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete("/:postId/unlike", isLoggedIn, async (req, res, next) => {
+  try {
+    const post = await Post.findOne({
+      where: { id: req.params.postId },
+    });
+    if (!post) {
+      return res.status(403).send("게시글이 존재하지 않습니다.");
+    }
+    await post.removeLikers(req.user.id);
+    res.json({
+      PostId: post.id,
+      UserId: req.user.id,
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 module.exports = router;
