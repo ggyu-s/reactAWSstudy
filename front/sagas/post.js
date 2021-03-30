@@ -1,14 +1,5 @@
-import {
-  all,
-  call,
-  delay,
-  fork,
-  put,
-  takeLatest,
-  throttle,
-} from "redux-saga/effects";
+import { all, call, fork, put, takeLatest } from "redux-saga/effects";
 import axios from "axios";
-import shortId from "shortid";
 import {
   ADD_COMMENT_FAILURE,
   ADD_COMMENT_REQUEST,
@@ -25,9 +16,15 @@ import {
   REMOVE_POST_FAILURE,
   REMOVE_POST_REQUEST,
   REMOVE_POST_SUCCESS,
+  RETWEET_FAILURE,
+  RETWEET_REQUEST,
+  RETWEET_SUCCESS,
   UNLIKE_POST_FAILURE,
   UNLIKE_POST_REQUEST,
   UNLIKE_POST_SUCCESS,
+  UPLOAD_IMAGES_FAILURE,
+  UPLOAD_IMAGES_REQUEST,
+  UPLOAD_IMAGES_SUCCESS,
 } from "../reducers/post";
 import { ADD_POST_TO_ME, REMOVE_POST_OF_ME } from "../reducers/user";
 
@@ -51,7 +48,7 @@ function* loadPosts(action) {
 }
 
 function addPostAPI(data) {
-  return axios.post("/post", { content: data });
+  return axios.post("/post", data);
 }
 
 function* addPost(action) {
@@ -156,6 +153,46 @@ function* unLikePost(action) {
   }
 }
 
+function uploadImagesAPI(data) {
+  return axios.post(`/post/images`, data);
+}
+
+function* uploadImages(action) {
+  try {
+    const result = yield call(uploadImagesAPI, action.data);
+    yield put({
+      type: UPLOAD_IMAGES_SUCCESS,
+      data: result.data,
+    });
+  } catch (error) {
+    console.error(error);
+    yield put({
+      type: UPLOAD_IMAGES_FAILURE,
+      data: error.response.data,
+    });
+  }
+}
+
+function retweetAPI(data) {
+  return axios.post(`/post/${data}/retweet`, data);
+}
+
+function* retweet(action) {
+  try {
+    const result = yield call(retweetAPI, action.data);
+    yield put({
+      type: RETWEET_SUCCESS,
+      data: result.data,
+    });
+  } catch (error) {
+    console.error(error);
+    yield put({
+      type: RETWEET_FAILURE,
+      error: error.response.data,
+    });
+  }
+}
+
 function* watchLoadPosts() {
   yield takeLatest(LOAD_POSTS_REQUEST, loadPosts);
 }
@@ -180,6 +217,14 @@ function* watchUnLike() {
   yield takeLatest(UNLIKE_POST_REQUEST, unLikePost);
 }
 
+function* watchUploadImages() {
+  yield takeLatest(UPLOAD_IMAGES_REQUEST, uploadImages);
+}
+
+function* watchRetweet() {
+  yield takeLatest(RETWEET_REQUEST, retweet);
+}
+
 function* post() {
   yield all([
     fork(watchLoadPosts),
@@ -188,6 +233,8 @@ function* post() {
     fork(watchRemovePost),
     fork(watchLike),
     fork(watchUnLike),
+    fork(watchUploadImages),
+    fork(watchRetweet),
   ]);
 }
 
