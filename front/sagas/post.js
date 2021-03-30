@@ -180,6 +180,7 @@ function retweetAPI(data) {
 function* retweet(action) {
   try {
     const result = yield call(retweetAPI, action.data);
+    console.log(result);
     yield put({
       type: RETWEET_SUCCESS,
       data: result.data,
