@@ -170,7 +170,7 @@ function* unFollow(action) {
 }
 
 function loadFollowersAPI(data) {
-  return axios.get("/user/f/followers", data);
+  return axios.get(`/user/f/followers?limit=${data}`);
 }
 
 function* loadFollowers(action) {
@@ -189,7 +189,7 @@ function* loadFollowers(action) {
 }
 
 function loadFollowingsAPI(data) {
-  return axios.get("/user/f/followings", data);
+  return axios.get(`/user/f/followings?limit=${data}`);
 }
 
 function* loadFollowings(action) {

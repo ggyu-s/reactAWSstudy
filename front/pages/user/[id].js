@@ -48,50 +48,55 @@ function User() {
   return (
     <>
       <AppLayout>
-        <Head>
-          <title>{userInfo.nickname}님의 글</title>
-          <meta
-            name="description"
-            content={`${userInfo.nickname}님의 게시글`}
-          />
-          <meta
-            property="og:title"
-            content={`${userInfo.nickname}님의 게시글`}
-          />
-          <meta
-            property="og:description"
-            content={`${userInfo.nickname}님의 게시글`}
-          />
-          <meta
-            property="og:image"
-            content="https://nodebird.com/favicon.ico"
-          />
-          <meta property="og:url" content={`https://nodebird.com/user/${id}`} />
-        </Head>
         {userInfo ? (
-          <Card
-            actions={[
-              <div key="twit">
-                트윗
-                <br />
-                {userInfo.Posts.length}
-              </div>,
-              <div key="followings">
-                팔로잉
-                <br />
-                {userInfo.Followings.length}
-              </div>,
-              <div key="followings">
-                팔로워
-                <br /> {userInfo.Followers.length}
-              </div>,
-            ]}
-          >
-            <Card.Meta
-              avatar={<Avatar>{userInfo.nickname[0]}</Avatar>}
-              title={userInfo.nickname}
-            />
-          </Card>
+          <>
+            <Head>
+              <title>{userInfo.nickname}님의 글</title>
+              <meta
+                name="description"
+                content={`${userInfo.nickname}님의 게시글`}
+              />
+              <meta
+                property="og:title"
+                content={`${userInfo.nickname}님의 게시글`}
+              />
+              <meta
+                property="og:description"
+                content={`${userInfo.nickname}님의 게시글`}
+              />
+              <meta
+                property="og:image"
+                content="https://nodebird.com/favicon.ico"
+              />
+              <meta
+                property="og:url"
+                content={`https://nodebird.com/user/${id}`}
+              />
+            </Head>
+            <Card
+              actions={[
+                <div key="twit">
+                  트윗
+                  <br />
+                  {userInfo.Posts.length}
+                </div>,
+                <div key="followings">
+                  팔로잉
+                  <br />
+                  {userInfo.Followings.length}
+                </div>,
+                <div key="followings">
+                  팔로워
+                  <br /> {userInfo.Followers.length}
+                </div>,
+              ]}
+            >
+              <Card.Meta
+                avatar={<Avatar>{userInfo.nickname[0]}</Avatar>}
+                title={userInfo.nickname}
+              />
+            </Card>
+          </>
         ) : null}
         {mainPosts.map((c) => (
           <PostCard key={c.id} post={c} />
