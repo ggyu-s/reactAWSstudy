@@ -1,43 +1,82 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const passport = require("passport");
+const { Op } = require("sequelize");
 
 const db = require("../models");
 const { isLoggedIn, isNotLoggedIn } = require("./middlewares");
 const e = require("express");
 
-const { User, Post } = db;
+const { User, Post, Comment, Image } = db;
 
 const router = express.Router();
 
 router.get("/", async (req, res, next) => {
   try {
-    if (req.user) {
-      const fullUserWithoutPassword = await User.findOne({
-        where: {
-          id: req.user.id,
+    const fullUserWithoutPassword = await User.findOne({
+      where: {
+        id: req.user.id,
+      },
+      attributes: ["id", "nickname", "email"],
+      include: [
+        {
+          model: Post,
+          attributes: ["id"],
         },
-        attributes: ["id", "nickname", "email"],
-        include: [
-          {
-            model: Post,
-            attributes: ["id"],
-          },
-          {
-            model: User,
-            as: "Followings",
-            attributes: ["id"],
-          },
-          {
-            model: User,
-            as: "Followers",
-            attributes: ["id"],
-          },
-        ],
-      });
+        {
+          model: User,
+          as: "Followings",
+          attributes: ["id"],
+        },
+        {
+          model: User,
+          as: "Followers",
+          attributes: ["id"],
+        },
+      ],
+    });
+    if (fullUserWithoutPassword) {
       res.status(200).json(fullUserWithoutPassword);
     } else {
-      res.status(200).json(null);
+      res.status(404).json("존재하지 않는 사용자입니다.");
+    }
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/:userId", async (req, res, next) => {
+  try {
+    const fullUserWithoutPassword = await User.findOne({
+      where: {
+        id: req.params.userId,
+      },
+      attributes: ["id", "nickname", "email"],
+      include: [
+        {
+          model: Post,
+          attributes: ["id"],
+        },
+        {
+          model: User,
+          as: "Followings",
+          attributes: ["id"],
+        },
+        {
+          model: User,
+          as: "Followers",
+          attributes: ["id"],
+        },
+      ],
+    });
+    if (fullUserWithoutPassword) {
+      const data = fullUserWithoutPassword.toJSON();
+      data.Posts = data.Posts.length;
+      data.Followers = data.Followers.length;
+      data.Followings = data.Followings.length;
+      res.status(200).json(fullUserWithoutPassword);
+    } else {
+      res.status(404).json("존재하지 않는 사용자입니다.");
     }
   } catch (error) {
     next(error);
@@ -168,7 +207,7 @@ router.delete("/:userId/follow", isLoggedIn, async (req, res, next) => {
   }
 });
 
-router.get("/followers", isLoggedIn, async (req, res, next) => {
+router.get("/f/followers", isLoggedIn, async (req, res, next) => {
   try {
     const user = await User.findOne({
       where: {
@@ -188,7 +227,7 @@ router.get("/followers", isLoggedIn, async (req, res, next) => {
   }
 });
 
-router.get("/followings", isLoggedIn, async (req, res, next) => {
+router.get("/f/followings", isLoggedIn, async (req, res, next) => {
   try {
     const user = await User.findOne({
       where: {
@@ -222,6 +261,63 @@ router.delete("/follower/:userId", isLoggedIn, async (req, res, next) => {
     res.status(200).json({
       UserId: parseInt(req.params.userId, 10),
     });
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
+router.get("/:userId/posts", async (req, res, next) => {
+  try {
+    const where = { UserId: req.params.userId };
+    if (parseInt(req.query.lastId, 10)) {
+      where.id = { [Op.lt]: parseInt(req.query.lastId, 10) };
+    }
+    const posts = await Post.findAll({
+      where,
+      limit: 10,
+      order: [
+        ["createdAt", "DESC"],
+        [Comment, "createdAt", "DESC"],
+      ],
+      include: [
+        {
+          model: User,
+          attributes: ["id", "nickname"],
+        },
+        {
+          model: Image,
+        },
+        {
+          model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+          ],
+        },
+        {
+          model: User, // 좋아요 누른사람
+          as: "Likers",
+          attributes: ["id"],
+        },
+        {
+          model: Post,
+          as: "Retweet",
+          include: [
+            {
+              model: User,
+              attributes: ["id", "nickname"],
+            },
+            {
+              model: Image,
+            },
+          ],
+        },
+      ],
+    });
+    res.status(200).json(posts);
   } catch (error) {
     console.error(error);
     next(error);

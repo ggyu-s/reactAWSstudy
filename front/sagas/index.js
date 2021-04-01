@@ -1,5 +1,4 @@
 import axios from "axios";
-import React from "react";
 import { all, fork } from "redux-saga/effects";
 import postSaga from "./post";
 import userSaga from "./user";

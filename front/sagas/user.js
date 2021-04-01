@@ -12,6 +12,9 @@ import {
   LOAD_FOLLOWERS_SUCCESS,
   LOAD_FOLLOWINGS_REQUEST,
   LOAD_FOLLOWINGS_SUCCESS,
+  LOAD_MY_INFO_FAILURE,
+  LOAD_MY_INFO_REQUEST,
+  LOAD_MY_INFO_SUCCESS,
   LOAD_USER_FAILURE,
   LOAD_USER_REQUEST,
   LOAD_USER_SUCCESS,
@@ -32,13 +35,33 @@ import {
   UNFOLLOW_SUCCESS,
 } from "../reducers/user";
 
-function loadUserAPI() {
+function loadMyInfoAPI() {
   return axios.get("/user");
 }
 
-function* loadUser() {
+function* loadMyInfo() {
   try {
-    const result = yield call(loadUserAPI);
+    const result = yield call(loadMyInfoAPI);
+    console.log(result);
+    yield put({
+      type: LOAD_MY_INFO_SUCCESS,
+      data: result.data,
+    });
+  } catch (error) {
+    yield put({
+      type: LOAD_MY_INFO_FAILURE,
+      error: error.response.data,
+    });
+  }
+}
+
+function loadUserAPI(data) {
+  return axios.get(`/user/${data}`);
+}
+
+function* loadUser(action) {
+  try {
+    const result = yield call(loadUserAPI, action.data);
     console.log(result);
     yield put({
       type: LOAD_USER_SUCCESS,
@@ -147,7 +170,7 @@ function* unFollow(action) {
 }
 
 function loadFollowersAPI(data) {
-  return axios.get(`/user/followers`, data);
+  return axios.get("/user/f/followers", data);
 }
 
 function* loadFollowers(action) {
@@ -166,7 +189,7 @@ function* loadFollowers(action) {
 }
 
 function loadFollowingsAPI(data) {
-  return axios.get(`/user/followings`, data);
+  return axios.get("/user/f/followings", data);
 }
 
 function* loadFollowings(action) {
@@ -263,8 +286,13 @@ function* watchChangeNickname() {
   yield takeLatest(CHANGE_NICKNAME_REQUEST, changeNickname);
 }
 
+function* watchLoadMyInfo() {
+  yield takeLatest(LOAD_MY_INFO_REQUEST, loadMyInfo);
+}
+
 function* user() {
   yield all([
+    fork(watchLoadMyInfo),
     fork(watchLoadUser),
     fork(watchLogIn),
     fork(watchLogOut),

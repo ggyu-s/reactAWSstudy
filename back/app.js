@@ -11,6 +11,7 @@ const db = require("./models");
 const postRouter = require("./routes/post");
 const postsRouter = require("./routes/posts");
 const appRouter = require("./routes/user");
+const hashRouter = require("./routes/hashtag");
 const passportConfig = require("./passport");
 
 dotenv.config();
@@ -49,6 +50,8 @@ app.use("/post", postRouter);
 app.use("/posts", postsRouter);
 
 app.use("/user", appRouter);
+
+app.use("/hashtag", hashRouter);
 
 app.listen(3065, () => {
   console.log("서버 실행");
