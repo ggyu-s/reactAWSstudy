@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start":"cross-env NODE_ENV=production next start -p 80",
     "dev": "next",
     "build": "cross-env ANALYZE=true NODE_ENV=production next build",
     "test": "echo \"Error: no test specified\" && exit 1"
