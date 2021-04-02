@@ -10,6 +10,7 @@ import {
   Overlay,
   SlickWrapper,
 } from "./style";
+import { baseUrl } from "../../config/config";
 
 function ImagesZoom({ images, onClose }) {
   const [currentState, setCurrentState] = useState(0);
@@ -32,7 +33,7 @@ function ImagesZoom({ images, onClose }) {
           >
             {images.map((v) => (
               <ImgWrapper key={v.src}>
-                <img src={`http://localhost:3065/${v.src}`} alt={v.src} />
+                <img src={`${baseUrl}/${v.src}`} alt={v.src} />
               </ImgWrapper>
             ))}
           </Slick>
