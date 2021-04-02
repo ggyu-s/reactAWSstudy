@@ -65,6 +65,6 @@ app.use("/user", appRouter);
 
 app.use("/hashtag", hashRouter);
 
-app.listen(3065, () => {
+app.listen(80, () => {
   console.log("서버 실행");
 });
