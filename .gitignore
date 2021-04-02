@@ -1,4 +1,8 @@
-#files
+
+
 node_modules/
-.env
 reactnode.pem
+.serverless
+/front/build/
+.next
+.env
