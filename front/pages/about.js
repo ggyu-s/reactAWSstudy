@@ -2,11 +2,11 @@ import React from "react";
 import Head from "next/head";
 import { useSelector } from "react-redux";
 import { Avatar, Card } from "antd";
+import { END } from "redux-saga";
 
 import AppLayout from "../components/AppLayout";
 import wrapper from "../store/configureStore";
 import { LOAD_USER_REQUEST } from "../reducers/user";
-import { END } from "redux-saga";
 
 function About() {
   const { userInfo } = useSelector((state) => state.user);
@@ -48,13 +48,15 @@ function About() {
   );
 }
 
-export const getStaticProps = wrapper.getStaticProps(async (context) => {
-  context.store.dispatch({
-    type: LOAD_USER_REQUEST,
-    data: 1,
-  });
-  context.store.dispatch(END);
-  await context.store.sagaTask.toPromise();
-});
+export const getServerSideProps = wrapper.getServerSideProps(
+  async (context) => {
+    context.store.dispatch({
+      type: LOAD_USER_REQUEST,
+      data: 1,
+    });
+    context.store.dispatch(END);
+    await context.store.sagaTask.toPromise();
+  }
+);
 
 export default About;
